@@ -41,7 +41,7 @@ def plot_choir_stage(df_choir):
 
         # Annotate with initials
         initials = f"{row['Name'].split()[0][0]}{row['Name'].split()[-1][0]}"  # First and last initial
-        label_offset = -0.3 if y == 1 else 0.2  # Move labels above only for bottom row
+        label_offset = -0.1 if y == 3 else 0.2  # Move labels above only for bottom row
         ax.text(x, y + label_offset, initials, ha="center", fontsize=10, fontweight='bold')
     
     # Set labels and title
