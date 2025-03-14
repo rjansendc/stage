@@ -26,7 +26,7 @@ def assign_rows_and_columns(df_choir, num_rows):
     df_choir["Column"] = col_assignments
     return df_choir
 
-def plot_stage(df_choir, num_rows)
+def plot_stage(df_choir, num_rows):
     
     # Save updated positioning to an Excel file
     output = "Choir_Positioning.xlsx"
