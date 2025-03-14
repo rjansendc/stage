@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import plotly.express as px
+import io
 
 def plot_choir_stage(df_choir):
-    import plotly.express as px
-    
     # Define colors for voice parts
     voice_colors = {
         "Soprano": "red",
@@ -27,7 +27,7 @@ def plot_choir_stage(df_choir):
     
     # Assign column positions evenly per row
     df_choir["Stage Column"] = [i % num_back + 1 if row == 3 else i % num_middle + 1 if row == 2 else i % num_front + 1 
-                                 for i, row in enumerate(df_choir["Stage Row"]) ]
+                                 for i, row in enumerate(df_choir["Stage Row"])]
     
     # Convert color mapping for Plotly
     df_choir["Color"] = df_choir["Section"].map(voice_colors)
@@ -48,6 +48,8 @@ def plot_choir_stage(df_choir):
     )
     
     st.plotly_chart(fig)
+    
+    return df_choir
 
 # Streamlit App
 st.title("🎶 Choir Stage Visualization")
@@ -56,4 +58,18 @@ uploaded_file = st.file_uploader("Upload Choir Excel File", type=["xlsm", "xlsx"
 
 if uploaded_file:
     df_choir = pd.read_excel(uploaded_file, sheet_name="Choir List")
-    plot_choir_stage(df_choir)
+    df_choir = plot_choir_stage(df_choir)
+    
+    # Save the generated positions to an Excel file
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df_choir.to_excel(writer, sheet_name="Positioning", index=False)
+    output.seek(0)
+    
+    # Create a download button for the new Excel file
+    st.download_button(
+        label="📥 Download Positioning File",
+        data=output,
+        file_name="Choir_Positioning.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
