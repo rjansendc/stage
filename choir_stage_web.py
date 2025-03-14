@@ -26,7 +26,12 @@ def assign_rows_and_columns(df_choir, num_rows):
     df_choir["Column"] = col_assignments
     return df_choir
 
-def plot_stage(df_choir, num_rows):
+def plot_stage(df_choir, num_rows)
+    
+    # Save updated positioning to an Excel file
+    output = "Choir_Positioning.xlsx"
+    df_choir.to_excel(output, index=False)
+    st.download_button(label="Download Updated Positioning", data=open(output, "rb").read(), file_name=output, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"):
     """Plot choir stage layout based on dynamically assigned row and column positioning."""
     voice_colors = {
         "Soprano": "red",
