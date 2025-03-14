@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def plot_choir_stage(df_choir):
+    import plotly.express as px
+    
     # Define colors for voice parts
     voice_colors = {
         "Soprano": "red",
@@ -27,38 +29,25 @@ def plot_choir_stage(df_choir):
     df_choir["Stage Column"] = [i % num_back + 1 if row == 3 else i % num_middle + 1 if row == 2 else i % num_front + 1 
                                  for i, row in enumerate(df_choir["Stage Row"]) ]
     
-    # Create figure and axis
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Convert color mapping for Plotly
+    df_choir["Color"] = df_choir["Section"].map(voice_colors)
     
-    # Scatter plot for choir members
-    for _, row in df_choir.iterrows():
-        x = row["Stage Column"]
-        y = row["Stage Row"]
-        color = voice_colors.get(row["Section"], "black")  # Default to black if unknown section
-
-        # Plot point
-        ax.scatter(x, y, color=color, s=200, edgecolors="black", alpha=0.7)
-
-        # Annotate with initials
-        initials = f"{row['Name'].split()[0][0]}{row['Name'].split()[-1][0]}"  # First and last initial
-        label_offset = -0.1 if y == 3 else 0.2  # Move labels above only for bottom row
-        ax.text(x, y + label_offset, initials, ha="center", fontsize=10, fontweight='bold')
+    # Create interactive plot using Plotly
+    fig = px.scatter(df_choir, x="Stage Column", y="Stage Row", 
+                     color="Section", color_discrete_map=voice_colors, 
+                     hover_name="Name", size_max=20)
     
-    # Set labels and title
-    ax.set_xlabel("Stage Columns")
-    ax.set_ylabel("Stage Rows (Back = Higher)")
-    ax.set_title("Choir Stage Layout Visualization")
+    fig.update_traces(marker=dict(size=10, line=dict(width=2, color='DarkSlateGrey')))
     
-    # Reverse y-axis so back row is at the top
-    ax.invert_yaxis()
+    fig.update_layout(
+        title="Choir Stage Layout Visualization",
+        xaxis_title="Stage Columns",
+        yaxis_title="Stage Rows (Back = Higher)",
+        yaxis=dict(autorange="reversed"),
+        showlegend=True
+    )
     
-    # Show legend for voice parts
-    legend_labels = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=c, markersize=10) for c in voice_colors.values()]
-    ax.legend(legend_labels, voice_colors.keys(), title="Voice Part", loc="upper right")
-    
-    # Show the plot
-    plt.grid(True, linestyle="--", alpha=0.5)
-    st.pyplot(fig)
+    st.plotly_chart(fig)
 
 # Streamlit App
 st.title("🎶 Choir Stage Visualization")
