@@ -6,12 +6,9 @@ import math
 
 
 
-def plot_stage(df_choir, num_rows):
+def plot_stage(df_choir):
     
-    # Save updated positioning to an Excel file
-    output = "Choir_Positioning.xlsx"
-    df_choir.to_excel(output, index=False)
-    st.download_button(label="Download Updated Positioning", data=open(output, "rb").read(), file_name=output, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    
     """Plot choir stage layout based on dynamically assigned row and column positioning."""
     voice_colors = {
         "Soprano": "red",
@@ -34,7 +31,7 @@ def plot_stage(df_choir, num_rows):
         yaxis_title="Stage Rows (Front = 1, Back = Max)",
         yaxis=dict(autorange="reversed", tickmode='array', 
                    tickvals=sorted(df_choir['Row'].unique(), reverse=True), 
-                   ticktext=[f"Row {i}" for i in range(1, num_rows + 1)]),
+                   ticktext=[f"Row {i}" for i in sorted(df_choir['Row'].unique(), reverse=True)]),
         showlegend=True
     )
     
@@ -45,9 +42,9 @@ st.title("🎶 Choir Stage Dynamic Visualization")
 
 
 
-positioning_file = "Choir_Positioning.xlsx"
+uploaded_file = st.file_uploader("Upload Choir Positioning File", type=["xlsx"])
 
-if True:  # Always read from Choir_Positioning.xlsx
-    df_choir = pd.read_excel(positioning_file)
+if uploaded_file:
+    df_choir = pd.read_excel(uploaded_file)
     
-    plot_stage(df_choir, num_rows)
+    plot_stage(df_choir)
