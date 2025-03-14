@@ -1,4 +1,5 @@
 import streamlit as st
+import openpyxl
 import pandas as pd
 import plotly.express as px
 import math
@@ -31,7 +32,7 @@ def plot_stage(df_choir, num_rows):
     # Save updated positioning to an Excel file
     output = "Choir_Positioning.xlsx"
     df_choir.to_excel(output, index=False)
-    st.download_button(label="Download Updated Positioning", data=open(output, "rb").read(), file_name=output, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"):
+    st.download_button(label="Download Updated Positioning", data=open(output, "rb").read(), file_name=output, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     """Plot choir stage layout based on dynamically assigned row and column positioning."""
     voice_colors = {
         "Soprano": "red",
