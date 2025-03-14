@@ -1,25 +1,18 @@
 import streamlit as st
+import openpyxl
 import pandas as pd
-import xml.etree.ElementTree as ET
 import plotly.express as px
+import math
 
-def parse_xml(file):
-    """Parse XML file containing choir member positioning information."""
-    tree = ET.parse(file)
-    root = tree.getroot()
-    
-    data = []
-    for member in root.findall(".//member"):
-        name = member.find("name").text
-        section = member.find("section").text
-        row = int(member.find("row").text)
-        column = int(member.find("column").text)
-        data.append({"Name": name, "Section": section, "Stage Row": row, "Stage Column": column})
-    
-    return pd.DataFrame(data)
 
-def plot_fixed_stage(df_choir):
-    """Plot choir stage layout based on fixed positioning."""
+
+def plot_stage(df_choir, num_rows):
+    
+    # Save updated positioning to an Excel file
+    output = "Choir_Positioning.xlsx"
+    df_choir.to_excel(output, index=False)
+    st.download_button(label="Download Updated Positioning", data=open(output, "rb").read(), file_name=output, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    """Plot choir stage layout based on dynamically assigned row and column positioning."""
     voice_colors = {
         "Soprano": "red",
         "Alto": "blue",
@@ -29,27 +22,32 @@ def plot_fixed_stage(df_choir):
     
     df_choir["Color"] = df_choir["Section"].map(voice_colors)
     
-    fig = px.scatter(df_choir, x="Stage Column", y="Stage Row", 
+    fig = px.scatter(df_choir, x="Column", y="Row", 
                      color="Section", color_discrete_map=voice_colors, 
                      hover_name="Name", size_max=20)
     
     fig.update_traces(marker=dict(size=10, line=dict(width=2, color='DarkSlateGrey')))
     
     fig.update_layout(
-        title="Choir Stage Layout (Fixed Positioning)",
+        title="Choir Stage Layout",
         xaxis_title="Stage Columns",
-        yaxis_title="Stage Rows (Back = Higher)",
-        yaxis=dict(autorange="reversed"),
+        yaxis_title="Stage Rows (Front = 1, Back = Max)",
+        yaxis=dict(autorange="reversed", tickmode='array', 
+                   tickvals=sorted(df_choir['Row'].unique(), reverse=True), 
+                   ticktext=[f"Row {i}" for i in range(1, num_rows + 1)]),
         showlegend=True
     )
     
     st.plotly_chart(fig)
 
 # Streamlit App
-st.title("🎶 Choir Stage Fixed Visualization")
+st.title("🎶 Choir Stage Dynamic Visualization")
 
-uploaded_file = st.file_uploader("Upload Choir Excel File", type=["xlsx"])
 
-if uploaded_file:
-    df_choir = pd.read_excel(uploaded_file, sheet_name="Positioning")
-    plot_fixed_stage(df_choir)
+
+positioning_file = "Choir_Positioning.xlsx"
+
+if True:  # Always read from Choir_Positioning.xlsx
+    df_choir = pd.read_excel(positioning_file)
+    
+    plot_stage(df_choir, num_rows)
