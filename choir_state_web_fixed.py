@@ -48,8 +48,8 @@ def plot_fixed_stage(df_choir):
 # Streamlit App
 st.title("🎶 Choir Stage Fixed Visualization")
 
-uploaded_file = st.file_uploader("Upload Choir XML File", type=["xml"])
+uploaded_file = st.file_uploader("Upload Choir Excel File", type=["xlsm", "xlsx"])
 
 if uploaded_file:
-    df_choir = parse_xml(uploaded_file)
+    df_choir = pd.read_excel(uploaded_file, sheet_name="Positioning")
     plot_fixed_stage(df_choir)
